@@ -1,22 +1,19 @@
 /**
 *
 * @file
-* imu_ble.h
+* force_adc.c
 *
 * @brief
-* Interface for controlling the IMU service
+* Implementation for controlling ADC peripheral for Force data
 *
 * Author: Schilbe, Seth
-* Date: 2019 - 12 - 01 
+* Date: 2019 - 01 - 10 
 */
 
-#ifndef IMU_BLE_H
-#define IMU_BLE_H
-    
 /*------------------------------------------------------------
 INCLUDES
 ------------------------------------------------------------*/
-#include "project.h"
+#include "force_adc.h"
 
 /*------------------------------------------------------------
 LITERAL CONSTANTS
@@ -30,16 +27,6 @@ MACROS
 TYPES
 ------------------------------------------------------------*/
 
-/* Re-define macros for accessing IMU service to improve readability */
-#define IMU_SERVICE_HANDLE  CY_BLE_IMU_SERVICE_HANDLE
-#define IMU_DECL_HANDLE     CY_BLE_IMU_ACCELERATIONGYROSCOPE_DECL_HANDLE
-#define IMU_CHAR_HANDLE     CY_BLE_IMU_ACCELERATIONGYROSCOPE_CHAR_HANDLE
-#define IMU_DESC_HANDLE     CY_BLE_IMU_ACCELERATIONGYROSCOPE_CHARACTERISTIC_USER_DESCRIPTION_DESC_HANDLE
-#define IMU_CONFIG_HANDLE   CY_BLE_IMU_ACCELERATIONGYROSCOPE_CLIENT_CHARACTERISTIC_CONFIGURATION_DESC_HANDLE
-
-#define IMU_FIRST_HANDLE    IMU_SERVICE_HANDLE
-#define IMU_LAST_HANDLE     IMU_CONFIG_HANDLE
-
 /*------------------------------------------------------------
 MEMORY CONSTANTS
 ------------------------------------------------------------*/
@@ -49,12 +36,19 @@ VARIABLES
 ------------------------------------------------------------*/
 
 /*------------------------------------------------------------
-PROTOTYPES
+PROCEDURES
 ------------------------------------------------------------*/
-void bleImuInit(void);
-void bleImuCallback(uint32_t event, void *eventParam);
-void imuSendNotification();
-void updateImuData( uint8_t newData[] );
+void adcInit()
+{
+    ADC_Start();
+    Cy_SAR_StartConvert( SAR, CY_SAR_START_CONVERT_CONTINUOUS );
+}
 
-#endif /* IMU_BLE_H */
+void getForceValues( uint8_t values[] )
+{
+    for( int i = 0; i < 8; i++ )
+    {
+        values[i] = Cy_SAR_GetResult16( SAR, i );
+    }
+}
 /* [] END OF FILE */
